@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MergeScripts.Console": {
+      "commandName": "Project",
+      "commandLineArgs": ".\\Files\\\r\nteste.sql"
+    }
+  }
+}
