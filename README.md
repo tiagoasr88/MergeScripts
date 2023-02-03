@@ -1,2 +1,2 @@
 # MergeScripts
-Merges sql scripts into a new file.
+Junta conteúdo de arquivos de texto em um novo arquivo.
