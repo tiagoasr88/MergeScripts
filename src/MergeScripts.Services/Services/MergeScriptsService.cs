@@ -1,9 +1,4 @@
 ﻿using MergeScripts.Services.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MergeScripts.Services.Services
 {
@@ -19,11 +14,6 @@ namespace MergeScripts.Services.Services
             return File.CreateText(arquivoDestino);
         }
 
-        public void IncluirLinhaArquivo(StreamWriter sw, string linha)
-        {
-            sw.WriteLine(linha);
-        }
-
         public IEnumerable<string> ListarArquivosDiretorio(string caminho)
         {
             return Directory.GetFiles(caminho);
@@ -31,27 +21,48 @@ namespace MergeScripts.Services.Services
 
         public void RealizarMergeArquivos(string caminho, string novoArquivoNome)
         {
+            var arquivoNomeCompleto = DefinirNomeNovoArquivo(caminho, novoArquivoNome);
+
             this.VerificarDiretorio(caminho);
 
             var arquivos = this.ListarArquivosDiretorio(caminho);
 
+            ValidarArquivosEncontrados(arquivos);
+
+            foreach (var arquivo in arquivos)
+            {
+                var linhas = this.AbrirArquivo(arquivo);
+
+                this.AdicionarLinhaRodape(ref linhas);
+
+                this.IncluirLinhasArquivo(arquivoNomeCompleto, linhas);
+            }
+        }
+
+        public string DefinirNomeNovoArquivo(string caminho, string novoArquivoNome)
+        {
+            return Path.Combine(caminho, novoArquivoNome);
+        }
+
+        public void ValidarArquivosEncontrados(IEnumerable<string> arquivos)
+        {
             if (arquivos == null || arquivos.Count() == 0)
                 throw new FileNotFoundException();
+        }
 
-            using (var sw = this.CriarArquivo(Path.Combine(caminho, novoArquivoNome)))
-            {
-                foreach (var arquivo in arquivos)
-                {
-                    var linhas = this.AbrirArquivo(arquivo);
+        public void IncluirLinhasArquivo(string arquivo, string[] linhas)
+        {
+            File.AppendAllLines(arquivo, linhas);
+        }
 
-                    foreach (var linha in linhas)
-                    {
-                        this.IncluirLinhaArquivo(sw, linha);
-                    }
+        public void AdicionarLinhaRodape(ref string[] linhas)
+        {
+            var lista = linhas.ToList();
 
-                    this.IncluirLinhaArquivo(sw, string.Empty);
-                }
-            }
+            if (!string.IsNullOrWhiteSpace(lista.LastOrDefault()))
+                lista.Add(String.Empty);
+
+            linhas = lista.ToArray();
         }
 
         public void VerificarDiretorio(string caminho)

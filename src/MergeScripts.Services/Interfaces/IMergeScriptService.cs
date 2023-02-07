@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace MergeScripts.Services.Interfaces
+﻿namespace MergeScripts.Services.Interfaces
 {
     public interface IMergeScriptService
     {
@@ -16,8 +10,9 @@ namespace MergeScripts.Services.Interfaces
 
         StreamWriter CriarArquivo(string arquivoDestino);
 
-        void IncluirLinhaArquivo(StreamWriter sw, string linha);
-
         void RealizarMergeArquivos(string caminho, string novoArquivoNome);
+        void IncluirLinhasArquivo(string arquivo, string[] linhas);
+        void ValidarArquivosEncontrados(IEnumerable<string> arquivos);
+        void AdicionarLinhaRodape(ref string[] linhas);
     }
 }

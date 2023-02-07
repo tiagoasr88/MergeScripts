@@ -1,9 +1,4 @@
 ﻿using MergeScripts.Services.Services;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MergeScripts.tests
 {
@@ -75,16 +70,15 @@ namespace MergeScripts.tests
         {
             var arquivoDestino = @".\Files\novo_arquivo.sql";
 
-            const string linha = @"SELECT * FROM teste";
+            string[] linhasOrigem = new string[] { @"SELECT * FROM teste", "GO" };
 
-            using (var sw = _service.CriarArquivo(arquivoDestino))
-                _service.IncluirLinhaArquivo(sw, linha);
+            _service.IncluirLinhasArquivo(arquivoDestino, linhasOrigem);
 
-            var linhas = _service.AbrirArquivo(arquivoDestino);
+            var linhasDestino = _service.AbrirArquivo(arquivoDestino);
 
             File.Delete(arquivoDestino);
 
-            Assert.Equal(linha, linhas[0]);
+            Assert.Equal(linhasOrigem, linhasDestino);
         }
 
         [Fact]
@@ -117,6 +111,48 @@ namespace MergeScripts.tests
 
             Assert.Equal(15, linhas.Count());
 
+        }
+
+        [Fact]
+        public void DeveAdicionarLinhaVaziaNoFimDaListaQuandoUltimaLinhaNaoForVazia()
+        {
+            var arr = new string[] { "linha1", "linha2" };
+
+            _service.AdicionarLinhaRodape(ref arr);
+
+            Assert.Equal(3, arr.Count());
+            Assert.Equal(string.Empty, arr.Last());
+        }
+
+        [Fact]
+        public void NaoDeveAdicionarLinhaVaziaNoFimDaLista()
+        {
+            var arr = new string[] { "linha1", "linha2", "" };
+
+            _service.AdicionarLinhaRodape(ref arr);
+
+            Assert.Equal(3, arr.Count());
+            Assert.Equal(string.Empty, arr.Last());
+        }
+
+        [Fact]
+        public void DeveValidarArquivosEncontradosComSucesso()
+        {
+            const string caminho = @".\Files\File1.sql";
+
+            var arquivos = new string[] { caminho };
+            _service.ValidarArquivosEncontrados(arquivos);
+        }
+
+        [Fact]
+        public void DeveDefinirNomeAquivoDestinoComSucesso()
+        {
+            const string caminho = @"c:\teste";
+            const string novoArquivoNome = "teste.sql";
+
+            var resultado = _service.DefinirNomeNovoArquivo(caminho, novoArquivoNome);
+
+            Assert.Equal(Path.Combine(caminho, novoArquivoNome), resultado);
         }
     }
 }
